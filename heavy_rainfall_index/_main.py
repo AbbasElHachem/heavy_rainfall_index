@@ -64,7 +64,7 @@ schmitt_verbal = {
 
 
 ####################################################################################################################
-class HeavyRainIndexAnalyse(IntensityDurationFrequencyAnalyse):
+class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
     indices = list(range(1, 13))
 
     class METHODS:
@@ -192,6 +192,7 @@ class HeavyRainIndexAnalyse(IntensityDurationFrequencyAnalyse):
                 rp_table[sri] = np.exp((sri + 0.5 - a) / 1.5)
 
             rp_table.loc[:, 1] = 1
+            rp_table.loc[:, 12] = 100
 
             # dann mittels Dauerstufe und Wiederkehrperiode die Regenhöhe errechnen
             sri_table = rp_table.round(1).copy()
@@ -200,6 +201,7 @@ class HeavyRainIndexAnalyse(IntensityDurationFrequencyAnalyse):
 
             # extrapolation vermutlich nicht sehr seriös
             sri_table[rp_table >= 100] = np.NaN
+            sri_table.loc[:12] = self.depth_of_rainfall(sri_table.index.values, 100)
             sri_table[rp_table < 1] = np.NaN
             sri_table = sri_table.astype(float).round(2)
             sri_table = sri_table.fillna(method='ffill', axis=1, limit=None)
@@ -217,7 +219,8 @@ class HeavyRainIndexAnalyse(IntensityDurationFrequencyAnalyse):
                 sri_table[i] = np.sqrt(i * sri_vector)
 
         else:
-            raise NotImplementedError(f'Method {self.method} not implemented!')
+            raise NotImplementedError(f'Method or "{self.method}" not implemented! '
+                                      f'Please contact the developer for the request to implement it.')
 
         sri_table.index.name = 'duration in min'
         sri_table.columns.name = 'SRI'

@@ -1,1 +1,0 @@
-from .heavy_rain_index_class import HeavyRainIndexAnalyse
