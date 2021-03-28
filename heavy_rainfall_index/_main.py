@@ -192,7 +192,7 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
                 rp_table[sri] = np.exp((sri + 0.5 - a) / 1.5)
 
             rp_table.loc[:, 1] = 1
-            rp_table.loc[:, 12] = 100
+            # rp_table.loc[:, 12] = 100
 
             # dann mittels Dauerstufe und Wiederkehrperiode die Regenhöhe errechnen
             sri_table = rp_table.round(1).copy()
@@ -201,7 +201,7 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
 
             # extrapolation vermutlich nicht sehr seriös
             sri_table[rp_table >= 100] = np.NaN
-            sri_table.loc[:12] = self.depth_of_rainfall(sri_table.index.values, 100)
+            # sri_table.loc[:12] = self.depth_of_rainfall(sri_table.index.values, 100)
             sri_table[rp_table < 1] = np.NaN
             sri_table = sri_table.astype(float).round(2)
             sri_table = sri_table.fillna(method='ffill', axis=1, limit=None)
@@ -256,11 +256,11 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
         return sri_table
 
     ####################################################################################################################
-    def result_sri_figure(self, min_duration=5.0, max_duration=8640.0, ax=None):
+    def result_sri_figure(self, min_duration=5.0, max_duration=8640.0, ax=None, grid=True):
         # duration_steps = np.arange(min_duration, max_duration + 1, 1)
         duration_steps = None
 
-        sri_table = self.result_sri_table(durations=duration_steps)
+        sri_table = self.result_sri_table(durations=duration_steps)#.sort_index(axis=1, ascending=False)
         sri_table.columns.name = 'SRI'
         ax = sri_table.plot(color=self.indices_color, logx=True, legend=True, ax=ax)
 
@@ -270,16 +270,28 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
         ax.set_xlabel('Dauerstufe D')
         ax.set_ylabel('Regenhöhe h$\\mathsf{_N}$ in mm')
         # ax.set_title('Starkregenindex - Kurven', fontweight='bold')
+
+        ax.set_xticks([], minor=True)
+
         ax.set_xticks(sri_table.index)
         ax.set_xlim(*sri_table.index.values[[0, -1]])
-        ax.set_xticklabels(duration_steps_readable(sri_table.index))
+
+        tick_labels = [minutes_readable(d) if d not in [15, 45, 5*24*60] else '' for d in sri_table.index]
+        ax.set_xticklabels(tick_labels)
+
         ax.set_facecolor('w')
+        if grid:
+            ax.grid(color='grey', linestyle='-', linewidth=0.3)
+
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1], bbox_to_anchor=(1.02, 1.), loc='upper left',
+                  borderaxespad=0., title='SRI')
 
         fig = ax.get_figure()
 
-        cm_to_inch = 2.54
-        fig.set_size_inches(h=21 / cm_to_inch, w=50 / cm_to_inch)  # (11.69, 8.27)
-        fig.tight_layout()
+        # cm_to_inch = 2.54
+        # fig.set_size_inches(h=11 / cm_to_inch, w=25 / cm_to_inch)  # (11.69, 8.27)
+        # fig.tight_layout()
         return fig, ax
 
     ####################################################################################################################
