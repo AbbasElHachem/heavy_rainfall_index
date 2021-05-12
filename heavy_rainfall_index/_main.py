@@ -24,6 +24,15 @@ COL.MAX_SRI_DURATION = 'max_SRI_duration_{}'
 ####################################################################################################################
 def grisa_factor(tn):
     return 1 + (np.log(tn) / np.log(2))
+    """M
+    calculates the grisa-factor according to Grisa's formula
+    
+    Args:
+        tn (float): in [years]
+
+    Returns:
+        float 
+    """
 
 
 def next_bigger(v, l):
@@ -227,6 +236,17 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
         return sri_table
 
     def interim_sri_table(self, durations=None):
+        """M
+        get a table of SRI with return periods as columns and durations as rows
+
+        Args:
+            durations (list | numpy.ndarray): list of durations in minutes for the table
+            return_periods (list): list of return periods in years for the table
+
+        Returns:
+            pandas.DataFrame: idf table
+        """
+
         idf_table = self.result_table(durations)
         sri_table = pd.DataFrame(index=idf_table.index, columns=idf_table.columns)
 
@@ -257,6 +277,15 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
 
     ####################################################################################################################
     def result_sri_figure(self, min_duration=5.0, max_duration=8640.0, ax=None, grid=True):
+        """M
+        SRI curves are generated depending on the selected procedure for SRI generation.
+
+        Args:
+            durations (list | numpy.ndarray): list of durations in minutes for the table
+
+        Returns:
+            matplotlib.figure
+        """
         # duration_steps = np.arange(min_duration, max_duration + 1, 1)
         duration_steps = None
 
@@ -325,6 +354,15 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
         return df#.round(1)
 
     def add_max_sri_to_events(self, events, series=None):
+        """M
+        maximum SRI is added to the table
+
+        Args:
+            events (list): list of rainfall events
+
+        Returns:
+            pandas.DataFrame: table
+        """
         if COL.MAX_SRI.format(self.method) not in events:
             events[COL.MAX_SRI.format(self.method)] = None
             events[COL.MAX_SRI_DURATION.format(self.method)] = None
@@ -337,6 +375,15 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
                 events.loc[event_no, COL.MAX_SRI_DURATION.format(self.method)] = s.idxmax()
 
     def get_event_sri_max(self, start, end, rainfall_sum_frame=None):
+        """M
+        maximum SRI is added to the table
+
+        Args:
+            events (list): list of rainfall events
+
+        Returns:
+            pandas.DataFrame: table
+        """
         if rainfall_sum_frame is None:
             d = self.rainfall_sum_frame[start:end].max().to_dict()
         else:
@@ -415,6 +462,15 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
 
     @staticmethod
     def event_plot_caption(event, method, unit='mm'):
+        """M
+        get a caption for the event
+
+        Args:
+            method (list): list of the possible methods (SCHMITT, MUDERSBACH, KRUEGER_PFISTER)
+
+        Returns:
+            caption
+        """
         caption = event_caption(event, unit) + '\n'
         caption += 'The method used for the SRI calculation is: {}.\n'.format(method)
 
@@ -426,6 +482,17 @@ class HeavyRainfallIndexAnalyse(IntensityDurationFrequencyAnalyse):
         return caption
 
     def event_plot_sri(self, event, durations=None, unit='mm', column_name='Precipitation', min_return_period=0.5):
+        """M
+        get a plot of the selected event
+
+        Args:
+            event (list): list of events
+            durations (list | numpy.ndarray): list of durations in minutes for the table
+            return_periods (list): list of return periods in years for the table
+
+        Returns:
+            matplotlib.figure
+        """
         event = event.to_dict()
         start = event[COL.START]
         end = event[COL.END]
