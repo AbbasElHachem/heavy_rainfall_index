@@ -13,6 +13,10 @@ Required python packages
 - `pandas`
 - `IntensityDurationFrequencyAnalyse`
 
+## Examples
+
+Here is an example Jupyter Notebook: [example.ipynb](docs/example.ipynb)
+
 Heavy rainfall index-matrix is created with regard to the individual procedures for SRI generation.
 ![sri_table_2.png](docs/sri_table_2.png)
 
